@@ -2,14 +2,16 @@ package controllers
 
 import "github.com/gofiber/fiber/v2"
 
-func UploadProjectForTranslation(c *fiber.Ctx) error {
-	return c.SendString("UploadProjectForTranslation")
+type ProjectController struct{}
+
+func (projectController ProjectController) UploadProjectForTranslation(request *fiber.Ctx) error {
+	return request.SendString("UploadProjectForTranslation")
 }
 
-func GetProjectTranslationResult(c *fiber.Ctx) error {
-	return c.SendString("GetProjectTranslation")
+func (projectController ProjectController) GetProjectTranslationResult(request *fiber.Ctx) error {
+	return request.SendString("GetProjectTranslation")
 }
 
-func GetProjectTranslationStatus(c *fiber.Ctx) error {
-	return c.SendString("GetProjectTranslation")
+func (projectController ProjectController) GetProjectTranslationStatus(request *fiber.Ctx) error {
+	return request.SendString("GetProjectTranslation")
 }

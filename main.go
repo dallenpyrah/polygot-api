@@ -16,16 +16,17 @@ func main() {
 		return err
 	})
 
-	app.Get("/api/v1/languages", controllers.GetAllSupportedLanguages)
-	app.Get("/api/v1/project/:id", controllers.GetProjectTranslationResult)
-	app.Get("/api/v1/file/:id", controllers.GetFileTranslationResult)
-	app.Get("/api/v1/folder/:id", controllers.GetFolderTranslationResult)
-	app.Get("/api/v1/project/:id/status", controllers.GetProjectTranslationStatus)
-	app.Get("/api/v1/file/:id/status", controllers.GetFileTranslationStatus)
-	app.Get("/api/v1/folder/:id/status", controllers.GetFolderTranslationStatus)
-	app.Post("/api/v1/file", controllers.UploadFileForTranslation)
-	app.Post("/api/v1/project", controllers.UploadProjectForTranslation)
-	app.Post("/api/v1/folder", controllers.UploadFolderForTranslation)
+	app.Post("/api/v1/project", controllers.ProjectController{}.UploadProjectForTranslation)
+	app.Get("/api/v1/project/:id/status", controllers.ProjectController{}.GetProjectTranslationStatus)
+	app.Get("/api/v1/project/:id", controllers.ProjectController{}.GetProjectTranslationResult)
+
+	app.Get("/api/v1/file/:id", controllers.FileController{}.GetFileTranslationResult)
+	app.Get("/api/v1/file/:id/status", controllers.FileController{}.GetFileTranslationStatus)
+	app.Post("/api/v1/file", controllers.FileController{}.UploadFileForTranslation)
+
+	app.Post("/api/v1/folder", controllers.FolderController{}.UploadFolderForTranslation)
+	app.Get("/api/v1/folder/:id", controllers.FolderController{}.GetFolderTranslationResult)
+	app.Get("/api/v1/folder/:id/status", controllers.FolderController{}.GetFolderTranslationStatus)
 
 	app.Listen(":3000")
 }

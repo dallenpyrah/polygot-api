@@ -2,23 +2,36 @@ package controllers
 
 import "github.com/gofiber/fiber/v2"
 
-func UploadFileForTranslation(c *fiber.Ctx) error {
-	// Grab the file from the request
-	file, err := c.FormFile("file")
-	if err != nil {
+type FileController struct{}
 
+func (fileController FileController) UploadFileForTranslation(request *fiber.Ctx) error {
+	// Grab the file from the request
+	file, err := request.FormFile("file")
+
+	if err != nil {
+		return request.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Failed to read file",
+		})
 	}
 
-	// Save the file to the server
-	err = c.SaveFile(file, "./uploads/"+file.Filename)
+	err = request.SaveFile(file, "./uploads/"+file.Filename)
 
-	return c.SendString("UploadFileForTranslation")
+	if err != nil {
+		return request.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to save file",
+		})
+	}
+
+	return request.JSON(fiber.Map{
+		"message":  "File uploaded successfully",
+		"filename": file.Filename,
+	})
 }
 
-func GetFileTranslationResult(c *fiber.Ctx) error {
-	return c.SendString("GetFileTranslation")
+func (fileController FileController) GetFileTranslationResult(request *fiber.Ctx) error {
+	return request.SendString("GetFileTranslation")
 }
 
-func GetFileTranslationStatus(c *fiber.Ctx) error {
-	return c.SendString("GetFileTranslation")
+func (fileController FileController) GetFileTranslationStatus(request *fiber.Ctx) error {
+	return request.SendString("GetFileTranslation")
 }
