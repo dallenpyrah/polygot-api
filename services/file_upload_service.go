@@ -2,9 +2,12 @@ package services
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"io"
 	"math/rand"
+	"mime/multipart"
+	"os"
 	"path/filepath"
+	"polygot-api/contracts"
 	"polygot-api/interfaces"
 	"time"
 )
@@ -13,35 +16,26 @@ type FileUploadService struct {
 	fileLocationDetailsWriter interfaces.FileLocationDetailsWriter
 }
 
-func (f *FileUploadService) UploadFile(request *fiber.Ctx) error {
-	file, err := request.FormFile("file")
+func (f *FileUploadService) UploadFile(file *multipart.FileHeader) (contracts.UploadFileResponseContract, error) {
+	var uploadFileResponseContract contracts.UploadFileResponseContract
+
+	uniqueFileName := generateUniqueFileName(file.Filename)
+
+	err := saveFile(file, "./uploads/"+uniqueFileName)
 
 	if err != nil {
-		return request.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Failed to read file",
-		})
+		return uploadFileResponseContract, err
 	}
 
-	file.Filename = GenerateUniqueFileName(file.Filename)
+	requestId := f.fileLocationDetailsWriter.InsertFileLocationDetails(uniqueFileName)
 
-	err = request.SaveFile(file, "./uploads/"+file.Filename)
+	uploadFileResponseContract.RequestId = requestId
+	uploadFileResponseContract.FileName = uniqueFileName
 
-	if err != nil {
-		return request.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to save file",
-		})
-	}
-
-	requestId := f.fileLocationDetailsWriter.InsertFileLocationDetails(file.Filename)
-
-	return request.JSON(fiber.Map{
-		"message":   "File uploaded successfully",
-		"filename":  file.Filename,
-		"requestId": requestId,
-	})
+	return uploadFileResponseContract, nil
 }
 
-func GenerateUniqueFileName(fileName string) string {
+func generateUniqueFileName(fileName string) string {
 	extension := filepath.Ext(fileName)
 
 	timestamp := time.Now().UnixNano()
@@ -50,4 +44,28 @@ func GenerateUniqueFileName(fileName string) string {
 	newFilename := fmt.Sprintf("%d-%d%s", timestamp, randomNumber, extension)
 
 	return newFilename
+}
+
+func saveFile(file *multipart.FileHeader, destinationFile string) error {
+	sourceFile, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	newFile, err := os.Create(destinationFile)
+
+	if err != nil {
+		return err
+	}
+
+	defer newFile.Close()
+
+	_, err = io.Copy(newFile, sourceFile)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

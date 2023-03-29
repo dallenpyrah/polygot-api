@@ -9,9 +9,24 @@ type FileController struct {
 	fileUploadService services.FileUploadService
 }
 
-func (f FileController) UploadFileForTranslation(request *fiber.Ctx) error {
-	result := f.fileUploadService.UploadFile(request)
-	return result
+func (f FileController) UploadFileForTranslation(c *fiber.Ctx) error {
+	file, err := c.FormFile("file")
+
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Failed to process the uploaded file",
+		})
+	}
+
+	result, err := f.fileUploadService.UploadFile(file)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": "An error occurred while uploading the file",
+		})
+	}
+
+	return c.Status(200).JSON(result)
 }
 
 func (f FileController) GetFileTranslationResult(request *fiber.Ctx) error {
