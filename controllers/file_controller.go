@@ -1,37 +1,23 @@
 package controllers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"polygot-api/services"
+)
 
-type FileController struct{}
-
-func (fileController FileController) UploadFileForTranslation(request *fiber.Ctx) error {
-	// Grab the file from the request
-	file, err := request.FormFile("file")
-
-	if err != nil {
-		return request.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Failed to read file",
-		})
-	}
-
-	err = request.SaveFile(file, "./uploads/"+file.Filename)
-
-	if err != nil {
-		return request.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to save file",
-		})
-	}
-
-	return request.JSON(fiber.Map{
-		"message":  "File uploaded successfully",
-		"filename": file.Filename,
-	})
+type FileController struct {
+	fileUploadService services.FileUploadService
 }
 
-func (fileController FileController) GetFileTranslationResult(request *fiber.Ctx) error {
+func (f FileController) UploadFileForTranslation(request *fiber.Ctx) error {
+	result := f.fileUploadService.UploadFile(request)
+	return result
+}
+
+func (f FileController) GetFileTranslationResult(request *fiber.Ctx) error {
 	return request.SendString("GetFileTranslation")
 }
 
-func (fileController FileController) GetFileTranslationStatus(request *fiber.Ctx) error {
+func (f FileController) GetFileTranslationStatus(request *fiber.Ctx) error {
 	return request.SendString("GetFileTranslation")
 }
