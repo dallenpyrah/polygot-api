@@ -3,16 +3,24 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"os"
 	"polygot-api/controllers"
 )
 
 func main() {
 	app := fiber.New()
 
+	os.Setenv("FIREBASE_CREDENTIALS", "/secrets/firebase-storage-service-account.json")
+
 	app.Use(logger.New())
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		err := c.SendString("polygot-api is running")
+		return err
+	})
+
+	app.Get("/api/v1/health", func(c *fiber.Ctx) error {
+		err := c.SendString("polygot-api is healthy")
 		return err
 	})
 
