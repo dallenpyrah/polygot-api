@@ -9,6 +9,10 @@ type FileController struct {
 	fileUploadService services.FileUploadService
 }
 
+func NewFileController(fileUploadService services.FileUploadService) FileController {
+	return FileController{fileUploadService: fileUploadService}
+}
+
 func (f FileController) UploadFileForTranslation(c *fiber.Ctx) error {
 	file, err := c.FormFile("file")
 

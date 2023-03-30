@@ -5,6 +5,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"os"
 	"polygot-api/controllers"
+	"polygot-api/providers"
+	"polygot-api/repositories"
+	"polygot-api/services"
 )
 
 func main() {
@@ -28,9 +31,13 @@ func main() {
 	app.Get("/api/v1/project/:id/status", controllers.ProjectController{}.GetProjectTranslationStatus)
 	app.Get("/api/v1/project/:id", controllers.ProjectController{}.GetProjectTranslationResult)
 
-	app.Get("/api/v1/file/:id", controllers.FileController{}.GetFileTranslationResult)
-	app.Get("/api/v1/file/:id/status", controllers.FileController{}.GetFileTranslationStatus)
-	app.Post("/api/v1/file", controllers.FileController{}.UploadFileForTranslation)
+	fileLocationsDetailsRepository := repositories.NewFileLocationDetailsRepository(providers.DbConnectionProvider{}, nil)
+	fileUploadService := services.NewFileUploadService(fileLocationsDetailsRepository)
+	fileController := controllers.NewFileController(fileUploadService)
+
+	app.Get("/api/v1/file/:id", fileController.GetFileTranslationResult)
+	app.Get("/api/v1/file/:id/status", fileController.GetFileTranslationStatus)
+	app.Post("/api/v1/file", fileController.UploadFileForTranslation)
 
 	app.Post("/api/v1/folder", controllers.FolderController{}.UploadFolderForTranslation)
 	app.Get("/api/v1/folder/:id", controllers.FolderController{}.GetFolderTranslationResult)

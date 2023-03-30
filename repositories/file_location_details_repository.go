@@ -11,7 +11,14 @@ type FileLocationDetailsRepository struct {
 	logger               *log.Logger
 }
 
-func (f *FileLocationDetailsRepository) InsertFileLocationDetails(fileName string) (int64, error) {
+func NewFileLocationDetailsRepository(dbConnectionProvider providers.DbConnectionProvider, logger *log.Logger) FileLocationDetailsRepository {
+	return FileLocationDetailsRepository{
+		dbConnectionProvider: dbConnectionProvider,
+		logger:               logger,
+	}
+}
+
+func (f FileLocationDetailsRepository) InsertFileLocationDetails(fileName string) (int64, error) {
 	f.dbConnectionProvider.OpenConnection()
 
 	connection, _ := f.dbConnectionProvider.GetConnection()

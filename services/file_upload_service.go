@@ -16,6 +16,10 @@ type FileUploadService struct {
 	fileLocationDetailsWriter interfaces.FileLocationDetailsWriter
 }
 
+func NewFileUploadService(fileLocationDetailsWriter interfaces.FileLocationDetailsWriter) FileUploadService {
+	return FileUploadService{fileLocationDetailsWriter: fileLocationDetailsWriter}
+}
+
 func (f *FileUploadService) UploadFile(file *multipart.FileHeader) (contracts.UploadFileResponseContract, error) {
 	var uploadFileResponseContract contracts.UploadFileResponseContract
 
@@ -27,7 +31,11 @@ func (f *FileUploadService) UploadFile(file *multipart.FileHeader) (contracts.Up
 		return uploadFileResponseContract, err
 	}
 
-	requestId := f.fileLocationDetailsWriter.InsertFileLocationDetails(uniqueFileName)
+	requestId, err := f.fileLocationDetailsWriter.InsertFileLocationDetails(uniqueFileName)
+
+	if err != nil {
+		return uploadFileResponseContract, err
+	}
 
 	uploadFileResponseContract.RequestId = requestId
 	uploadFileResponseContract.FileName = uniqueFileName
