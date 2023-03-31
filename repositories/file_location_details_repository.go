@@ -36,3 +36,38 @@ func (f FileLocationDetailsRepository) InsertFileLocationDetails(fileName string
 
 	return id, nil
 }
+
+func (f FileLocationDetailsRepository) InsertFileUploadStatus(fileUploadId int64, status string) error {
+	f.dbConnectionProvider.OpenConnection()
+
+	connection, _ := f.dbConnectionProvider.GetConnection()
+
+	sql := "INSERT INTO file_upload_status (file_upload_id, status) VALUES ($1, $2)"
+
+	_, err := connection.Exec(context.Background(), sql, fileUploadId, status)
+	if err != nil {
+		return err
+	}
+
+	f.dbConnectionProvider.CloseConnection()
+
+	return nil
+}
+
+func (f FileLocationDetailsRepository) GetFileUploadStatus(fileUploadId int64) (string, error) {
+	f.dbConnectionProvider.OpenConnection()
+
+	connection, _ := f.dbConnectionProvider.GetConnection()
+
+	sql := "SELECT status FROM file_upload_status WHERE file_upload_id = $1 ORDER BY id DESC LIMIT 1"
+
+	var status string
+	err := connection.QueryRow(context.Background(), sql, fileUploadId).Scan(&status)
+	if err != nil {
+		return "", err
+	}
+
+	f.dbConnectionProvider.CloseConnection()
+
+	return status, nil
+}
