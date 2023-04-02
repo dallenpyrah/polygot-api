@@ -32,8 +32,10 @@ func main() {
 	app.Get("/api/v1/project/:id", controllers.ProjectController{}.GetProjectTranslationResult)
 
 	fileLocationsDetailsRepository := repositories.NewFileLocationDetailsRepository(providers.DbConnectionProvider{}, nil)
+	fileRetrievalRepository := repositories.NewFileRetrievalRepository(providers.DbConnectionProvider{})
+	fileRetrievalService := services.NewFileRetrievalService(fileRetrievalRepository)
 	fileUploadService := services.NewFileUploadService(fileLocationsDetailsRepository)
-	fileController := controllers.NewFileController(fileUploadService)
+	fileController := controllers.NewFileController(fileUploadService, fileRetrievalService)
 
 	app.Get("/api/v1/file/:id", fileController.GetFileTranslationResult)
 	app.Get("/api/v1/file/:id/status", fileController.GetFileTranslationStatus)

@@ -46,19 +46,6 @@ func (f *FileUploadService) UploadFile(file *multipart.FileHeader) (contracts.Up
 	return uploadFileResponseContract, nil
 }
 
-func (f *FileUploadService) GetFileTranslationStatus(id int64) (contracts.FileUploadStatusContract, error) {
-	var fileUploadStatusContract contracts.FileUploadStatusContract
-
-	status, err := f.fileLocationDetailsWriter.GetFileUploadStatus(id)
-	if err != nil {
-		return fileUploadStatusContract, err
-	}
-
-	fileUploadStatusContract.Status = status
-
-	return fileUploadStatusContract, nil
-}
-
 func generateUniqueFileName(fileName string) string {
 	extension := filepath.Ext(fileName)
 
