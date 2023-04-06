@@ -9,11 +9,13 @@ import (
 	"path/filepath"
 	"polygot-api/contracts"
 	"polygot-api/interfaces"
+	"polygot-api/providers"
 	"time"
 )
 
 type FileUploadService struct {
 	fileLocationDetailsWriter interfaces.FileLocationDetailsWriter
+	s3Provider                providers.S3Provider
 }
 
 func NewFileUploadService(fileLocationDetailsWriter interfaces.FileLocationDetailsWriter) FileUploadService {
@@ -25,7 +27,7 @@ func (f *FileUploadService) UploadFile(file *multipart.FileHeader) (contracts.Up
 
 	uniqueFileName := generateUniqueFileName(file.Filename)
 
-	err := saveFile(file, "./uploads/"+uniqueFileName)
+	err := f.UploadFileToS3(file, uniqueFileName)
 	if err != nil {
 		return uploadFileResponseContract, err
 	}
@@ -77,6 +79,20 @@ func saveFile(file *multipart.FileHeader, destinationFile string) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (f *FileUploadService) UploadFileToS3(fileHeader *multipart.FileHeader, fileName string) error {
+	file, err := fileHeader.Open()
+
+	bucketName := "bucket-name"
+
+	if err != nil {
+		return err
+	}
+
+	f.s3Provider.UploadFileToS3Bucket(bucketName, fileName, file)
 
 	return nil
 }
