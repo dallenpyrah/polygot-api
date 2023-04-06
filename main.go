@@ -27,10 +27,6 @@ func main() {
 		return err
 	})
 
-	app.Post("/api/v1/project", controllers.ProjectController{}.UploadProjectForTranslation)
-	app.Get("/api/v1/project/:id/status", controllers.ProjectController{}.GetProjectTranslationStatus)
-	app.Get("/api/v1/project/:id", controllers.ProjectController{}.GetProjectTranslationResult)
-
 	fileLocationsDetailsRepository := repositories.NewFileLocationDetailsRepository(providers.DbConnectionProvider{}, nil)
 	fileRetrievalRepository := repositories.NewFileRetrievalRepository(providers.DbConnectionProvider{})
 	fileRetrievalService := services.NewFileRetrievalService(fileRetrievalRepository)
